@@ -36,12 +36,16 @@ training:
   grad_accum_steps: 1
   grad_checkpoint_every: 1
   grad_clip_norm: 1.0
+
+  metric_checkpoint_path: ./metric_checkpoint/imagenet-vgg-verydeep-19.mat
   l2_loss_weight: 1.0
   lpips_loss_weight: 0.0
   perceptual_loss_weight: 0.5
 
   lr: 0.0004
   train_steps: 100000
+
+
   num_input_views: 2
   num_target_views: 6
   num_threads: 8
@@ -50,8 +54,6 @@ training:
 
   prefetch_factor: 32
   print_every: 20
-
-
 
 
   square_crop: true

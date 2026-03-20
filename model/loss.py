@@ -15,8 +15,9 @@ from pathlib import Path
 # the perception loss code is modified from https://github.com/zhengqili/Crowdsampling-the-Plenoptic-Function/blob/f5216f312cf82d77f8d20454b5eeb3930324630a/models/networks.py#L1478
 # and some parts are based on https://github.com/arthurhero/Long-LRM/blob/main/model/loss.py
 class PerceptualLoss(nn.Module):
-    def __init__(self, device="cpu"):
+    def __init__(self, metric_checkpoint_path, device="cpu"):
         super().__init__()
+        self.metric_checkpoint_path = metric_checkpoint_path
         self.device = device
         self.vgg = self._build_vgg()
         self._load_weights()
@@ -34,7 +35,7 @@ class PerceptualLoss(nn.Module):
     
     def _load_weights(self):
         """Load pre-trained VGG weights. """
-        weight_file = Path("./metric_checkpoint/imagenet-vgg-verydeep-19.mat")
+        weight_file = Path(self.metric_checkpoint_path)
         weight_file.parent.mkdir(exist_ok=True, parents=True)
         
         if not dist.is_initialized() or dist.get_rank() == 0:
@@ -135,7 +136,7 @@ class LossComputer(nn.Module):
             if not dist.is_initialized() or dist.get_rank() != 0:
                 self.lpips_loss_module = self._init_frozen_module(lpips.LPIPS(net="vgg"))
         if self.config.training.perceptual_loss_weight > 0.0:
-            self.perceptual_loss_module = self._init_frozen_module(PerceptualLoss())
+            self.perceptual_loss_module = self._init_frozen_module(PerceptualLoss(config.training.metric_checkpoint_path))
 
     def _init_frozen_module(self, module):
         """Helper method to initialize and freeze a module's parameters."""
