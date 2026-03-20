@@ -50,7 +50,7 @@ def create_optimizer(model, weight_decay, learning_rate, betas):
     optimizer = torch.optim.AdamW(optim_groups, lr=learning_rate, betas=betas,fused=True)
     
     # Print Model Information
-    if dist.get_rank() == 0:
+    if not dist.is_initialized() or dist.get_rank() == 0:
         def get_module_name(name):
             parts = name.split('.')
             if len(parts) > 2 and parts[0] == 'module':
